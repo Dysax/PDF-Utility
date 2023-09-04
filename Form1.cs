@@ -16,7 +16,8 @@ namespace PDF_Combiner
 
         private void btnCombinePDF_Click(object sender, EventArgs e)
         {
-            var fileList = lstPDFFiles.Items.Cast<string>().ToArray();
+            var fileList = lstPDFFiles.Items.Cast<ListItem>().Select(item => item.Value).ToArray();
+
 
             // Check if PDF files are selected
             if (fileList == null || fileList.Length == 0)
@@ -130,6 +131,68 @@ namespace PDF_Combiner
         private void label1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void btnAddPDFForSeparation_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "PDF Files|*.pdf",
+                Multiselect = false
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                lstPages.Items.Clear();
+                using (PdfReader reader = new PdfReader(openFileDialog.FileName))
+                {
+                    for (int i = 1; i <= reader.NumberOfPages; i++)
+                    {
+                        lstPages.Items.Add($"Page {i}");
+                    }
+                }
+                lstPages.Tag = openFileDialog.FileName; // Use Tag property to store the path of the selected PDF
+            }
+        }
+
+        private void btnSeparatePDF_Click(object sender, EventArgs e)
+        {
+            if (lstPages.Items.Count == 0 || lstPages.SelectedItems.Count == 0)
+            {
+                MessageBox.Show("Please select pages to separate.");
+                return;
+            }
+
+            string sourcePdf = lstPages.Tag.ToString();
+
+            using (PdfReader reader = new PdfReader(sourcePdf))
+            {
+                foreach (var item in lstPages.SelectedItems)
+                {
+                    string[] words = item.ToString().Split(' ');
+                    int pageIndex = int.Parse(words[1]); // Assuming the format is "Page {number}"
+
+                    SaveFileDialog saveFileDialog = new SaveFileDialog
+                    {
+                        Filter = "PDF Files|*.pdf",
+                        FileName = $"Page_{pageIndex}.pdf"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        string outputFilePath = saveFileDialog.FileName;
+
+                        using (FileStream fs = new FileStream(outputFilePath, FileMode.Create))
+                        using (Document document = new Document())
+                        using (PdfCopy copy = new PdfCopy(document, fs))
+                        {
+                            document.Open();
+                            copy.AddPage(copy.GetImportedPage(reader, pageIndex));
+                        }
+                    }
+                }
+            }
+            MessageBox.Show("Pages separated successfully.");
         }
     }
 }
