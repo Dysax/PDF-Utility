@@ -19,7 +19,7 @@ A tool to combine multiple PDFs into one and separate individual pages from a PD
     ```
 2. Navigate to the directory:
     ```bash
-    cd PDF-Utility-App
+    cd PDF-Utility
     ```
 3. Build and run the application:
     ```bash
