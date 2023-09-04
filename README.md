@@ -15,7 +15,7 @@ A tool to combine multiple PDFs into one and separate individual pages from a PD
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/Dysax/PDF-Utility-App.git
+    git clone https://github.com/Dysax/PDF-Utility.git
     ```
 2. Navigate to the directory:
     ```bash
